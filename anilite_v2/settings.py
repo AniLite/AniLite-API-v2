@@ -1,5 +1,9 @@
 from pathlib import Path
 from datetime import timedelta
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -10,6 +14,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+cloudinary.config(
+    cloud_name=config("CLOUD_NAME"),
+    api_key=config("API_KEY"),
+    api_secret=config("API_SECRET")
+)
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -25,7 +34,8 @@ INSTALLED_APPS = [
 
     # external
     'rest_framework',
-    'corsheaders'
+    'corsheaders',
+    'cloudinary'
 ]
 
 MIDDLEWARE = [

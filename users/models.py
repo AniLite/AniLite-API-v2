@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
+from cloudinary.models import CloudinaryField
 
 
 User = settings.AUTH_USER_MODEL
@@ -39,6 +40,7 @@ class CustomUser(AbstractUser):
     is_active = models.BooleanField(default=True)
     username = models.CharField(
         max_length=255, unique=False, null=True, blank=True)
+    profile_picture = CloudinaryField('image', blank=True, null=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []

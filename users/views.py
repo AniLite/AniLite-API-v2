@@ -1,4 +1,5 @@
-from rest_framework_simplejwt.tokens import RefreshToken
+from .models import CustomUser
+from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
@@ -38,6 +39,12 @@ class LoginView(APIView):
             return response
 
 
+# def get_user_profile(request):
+#     user = request.user
+#     serializer = UserSerializer(user, many=False)
+#     return Response(serializer.data)
+
+
 class UserView(APIView):
 
     def get(self, request):
@@ -46,9 +53,11 @@ class UserView(APIView):
             return Response({
                 "Message": "Session expired, log in again to continue"
             })
-        return Response({
-            "token": token
-        })
+        token_obj = AccessToken(token)
+        user_id = token_obj['user_id']
+        user = CustomUser.objects.get(id=user_id)
+        serializer = CustomUserSerializer(user, many=False)
+        return Response(serializer.data)
 
 
 class LogoutView(APIView):
