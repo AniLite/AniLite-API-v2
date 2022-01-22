@@ -1,9 +1,96 @@
+from django.core.signing import Signer
+from django.conf import settings
+from django.core.mail import send_mass_mail
+from django.http import JsonResponse
 from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView
+from users.models import CustomUser
 from .serializers import AnimeDetailSerializer, AnimeListSerializer, CharacterDetailSerializer, CharacterListSerializer,  GenreSerializer
 from animu.models import Anime, Genre, Character
 from .mixins import MultipleFieldLookupMixin
+from rest_framework.views import APIView
+from users.permissions import IsLoggedIn, IsAdmin
 
 ########################## USING GENERIC VIEWS ##########################
+
+
+##### Mailing list & subscription related views #####
+
+
+class AnimeSubscribeView(APIView):
+
+    permission_classes = [IsLoggedIn]
+
+    def post(self, request, slug):
+        user_id = request.COOKIES.get('anilite_cookie')
+        user = CustomUser.objects.get(id=user_id)
+        anime = Anime.objects.get(slug=slug)
+        if anime.is_completed == True:
+            return JsonResponse({"Message": "This anime is already complete, don't expect any more episodes to air"})
+        user.subscriptions.add(anime)
+        return JsonResponse({"Message": f"{user.username or user.email} subscribed to {anime.name_en}!"})
+
+
+class AnimeUnsubscribeView(APIView):
+
+    permission_classes = [IsLoggedIn]
+
+    def post(self, request, slug):
+        user_id = request.COOKIES.get('anilite_cookie')
+        user = CustomUser.objects.get(id=user_id)
+        anime = Anime.objects.get(slug=slug)
+        user.subscriptions.remove(anime)
+        return JsonResponse({"Message": f"{user.username or user.email} unsubscribed to {anime.name_en or anime.name_jp} successfully"})
+
+
+class SubscribeView(APIView):
+
+    permission_classes = [IsLoggedIn]
+
+    def post(self, request, slug):
+        user_id = request.COOKIES.get('anilite_cookie')
+        user = CustomUser.objects.get(id=user_id)
+        user.get_mails = True
+        return JsonResponse({"Message": f"{user.username or user.email} subscribed to the mailing list!"})
+
+
+class UnsubscribeView(APIView):
+
+    def get(self, request, slug):
+        signer = Signer(salt=str(settings.SECRET_KEY))
+        signed = request.GET.get('id', None)
+        unsigned = signer.unsign_object(signed)
+        email = unsigned['email']
+        if signed is not None:
+            user = CustomUser.objects.get(email=email)
+            user.get_mails = False
+            user.save()
+            return JsonResponse({"Message": f"{user.username or user.email} unsubscribed to all mails successfully!"})
+        return JsonResponse({"Message": "Something went wrong"})
+
+
+class SendMailView(APIView):
+
+    permission_classes = [IsAdmin]
+
+    def post(self, request, slug):
+        anime = Anime.objects.get(slug=slug)
+        subscribers = [user for user in anime.subscribers.all()]
+        signer = Signer(salt=str(settings.SECRET_KEY))
+        if subscribers:
+            messages = []
+            for subscriber in subscribers:
+                if subscriber.get_mails == True:
+                    signed = signer.sign_object({"email": subscriber.email})
+                    message = (
+                        f'New episode alert for {anime.name_en or anime.name_jp}',
+                        f'Hey {subscriber.username or subscriber.email}, a new episode has just dropped for {anime.name_en or anime.name_jp}, go check it out!\n\nTo unsubscribe, click on this link: http://127.0.0.1:8000/api/unsubscribe?id={signed}',
+                        settings.EMAIL_HOST_MAIL,
+                        [subscriber.email, ],
+                    )
+                    messages.append(message)
+            num_mails = send_mass_mail(messages, fail_silently=False)
+            return JsonResponse({"Message": f"{num_mails} mail(s) sent successfully!"})
+        return JsonResponse({"Message": "Looks like nobody was subscribed to this anime :/"})
 
 
 ##### Anime related views #####

@@ -11,6 +11,19 @@ urlpatterns = [
     path('anime/<str:slug>/update', AnimeUpdateView.as_view(), name='anime-update'),
     path('anime/<str:slug>/delete', AnimeDeleteView.as_view(), name='anime-delete'),
 
+    # anime subscription/mail related urls
+
+    path('anime/<str:slug>/subscribe',
+         AnimeSubscribeView.as_view(), name='anime-subscribe'),
+    path('anime/<str:slug>/unsubscribe',
+         AnimeUnsubscribeView.as_view(), name='anime-unsubscribe'),
+    path('anime/subscribe',
+         SubscribeView.as_view(), name='subscribe'),
+    path('anime/unsubscribe',
+         UnsubscribeView.as_view(), name='unsubscribe'),
+    path('anime/<str:slug>/mail',
+         SendMailView.as_view(), name='mail-subscribers'),
+
     # genre related urls
 
     path('genre/', GenreListView.as_view(), name='genre-list'),
