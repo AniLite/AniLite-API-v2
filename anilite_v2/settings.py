@@ -7,8 +7,7 @@ from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-SECRET_KEY = 'django-insecure-2#_-b7_8lv@$(t9(cts9vx=e8t6tf+*4v0030qapg9z_nxnhx^'
+SECRET_KEY = config('SECRET_KEY')
 
 DEBUG = True
 
@@ -48,6 +47,18 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+SESSION_ENGINE = 'redis_sessions.session'
+
+SESSION_REDIS = {
+    'host': config('REDIS_HOST'),
+    'port': 12962,
+    'db': 0,
+    'password': config('REDIS_PASS'),
+    'prefix': 'session',
+    'socket_timeout': 1,
+    'retry_on_timeout': False
+}
 
 ROOT_URLCONF = 'anilite_v2.urls'
 

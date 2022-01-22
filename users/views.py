@@ -1,13 +1,15 @@
-from .models import CustomUser
-from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
+from django.http import JsonResponse
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
 from django.conf import settings
 from .serializers import CustomUserSerializer
+from .permissions import IsLoggedIn
 
 
 class RegisterView(APIView):
+
     def post(self, request):
         serializer = CustomUserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -16,10 +18,10 @@ class RegisterView(APIView):
 
 
 class LoginView(APIView):
+
     def post(self, request):
-        data = request.data
-        email = data.get('email', None)
-        password = data.get('password', None)
+        email = request.data.get('email', None)
+        password = request.data.get('password', None)
         user = authenticate(email=email, password=password)
         response = Response()
 
@@ -27,37 +29,25 @@ class LoginView(APIView):
             refresh_token = RefreshToken.for_user(user)
             response.set_cookie(
                 key=settings.SIMPLE_JWT['COOKIE_KEY'],
-                value=str(refresh_token.access_token),
+                value=str(user.id),
                 expires=settings.SIMPLE_JWT['COOKIE_EXPIRES'],
                 secure=settings.SIMPLE_JWT['COOKIE_SECURE'],
                 httponly=settings.SIMPLE_JWT['COOKIE_HTTP_ONLY'],
                 samesite=settings.SIMPLE_JWT['COOKIE_SAMESITE']
             )
+            request.session['access_token'] = str(refresh_token.access_token)
             response.data = {
-                "Message": "Log in successful!"
+                "Message": "Login successful!"
             }
             return response
 
 
-# def get_user_profile(request):
-#     user = request.user
-#     serializer = UserSerializer(user, many=False)
-#     return Response(serializer.data)
-
-
 class UserView(APIView):
 
+    permission_classes = [IsLoggedIn]
+
     def get(self, request):
-        token = request.COOKIES.get('anilite_cookie', None)
-        if token is None:
-            return Response({
-                "Message": "Session expired, log in again to continue"
-            })
-        token_obj = AccessToken(token)
-        user_id = token_obj['user_id']
-        user = CustomUser.objects.get(id=user_id)
-        serializer = CustomUserSerializer(user, many=False)
-        return Response(serializer.data)
+        return JsonResponse({"Message": "Looks like you're logged in"})
 
 
 class LogoutView(APIView):
@@ -65,5 +55,7 @@ class LogoutView(APIView):
     def post(self, request):
         response = Response()
         response.delete_cookie('anilite_cookie')
+        if request.session.get('access_token') is not None:
+            del request.session['access_token']
         response.data = {"Message": "Logged out successfully"}
         return response
