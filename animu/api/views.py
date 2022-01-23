@@ -1,5 +1,7 @@
-from django.template import Context
-from django.core.mail import EmailMultiAlternatives
+import json
+import random
+from django_celery_beat.models import PeriodicTask, CrontabSchedule
+from datetime import datetime
 from django.core.signing import Signer
 from django.conf import settings
 from django.http import JsonResponse
@@ -10,8 +12,10 @@ from animu.models import Anime, Genre, Character
 from .mixins import MultipleFieldLookupMixin
 from rest_framework.views import APIView
 from users.permissions import IsLoggedIn, IsAdmin
-from django.core import mail
+from animu.tasks import sendMailInstantly
 from django.template.loader import get_template
+from django.core.mail import EmailMultiAlternatives
+from django.core import mail
 
 ########################## USING GENERIC VIEWS ##########################
 
@@ -106,6 +110,35 @@ class SendMailView(APIView):
             num_mails = connection.send_messages(messages)
             return JsonResponse({"Message": f"{num_mails} mail(s) sent successfully!"})
         return JsonResponse({"Message": "Looks like nobody was subscribed to this anime :/"})
+
+
+class ScheduleMail(APIView):
+
+    permission_classes = [IsAdmin]
+
+    def post(self, request, slug):
+
+        try:
+            param = str(request.GET.get('datetime', None))
+            dt = datetime.strptime(param, "%d/%m/%Y-%H:%M")
+        except Exception as e:
+            return JsonResponse({"Error details": f'{e}'})
+
+        schedule, created = CrontabSchedule.objects.get_or_create(
+            hour=dt.hour, minute=dt.minute, day_of_month=dt.day, month_of_year=dt.month)
+        task = PeriodicTask.objects.create(crontab=schedule, name="schedule-email-"+str(
+            param) + str(random.randint(1, 1000)), one_off=True, task='animu.tasks.sendMailInstantly', args=json.dumps([slug]))
+        return JsonResponse({"Message": "Mail scheduled successfully"})
+
+
+class CeleryMailView(APIView):
+
+    permission_classes = [IsAdmin]
+
+    def post(self, request, slug):
+        sendMailInstantly.delay(slug)
+        return JsonResponse({"Message": "Task sent to celery successfully!"})
+
 
 ##### Anime related views #####
 

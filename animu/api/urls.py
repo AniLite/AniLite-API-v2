@@ -11,18 +11,28 @@ urlpatterns = [
     path('anime/<str:slug>/update', AnimeUpdateView.as_view(), name='anime-update'),
     path('anime/<str:slug>/delete', AnimeDeleteView.as_view(), name='anime-delete'),
 
-    # anime subscription/mail related urls
+    # anime subscription urls
 
     path('anime/<str:slug>/subscribe',
          AnimeSubscribeView.as_view(), name='anime-subscribe'),
     path('anime/<str:slug>/unsubscribe',
          AnimeUnsubscribeView.as_view(), name='anime-unsubscribe'),
-    path('anime/subscribe',
+
+    # mailing list urls
+
+    path('subscribe',
          SubscribeView.as_view(), name='subscribe'),
     path('unsubscribe',
          UnsubscribeView.as_view(), name='unsubscribe'),
+
+    # send mail urls
+
     path('anime/<str:slug>/mail',
          SendMailView.as_view(), name='mail-subscribers'),
+    path('anime/<str:slug>/celerymail',
+         CeleryMailView.as_view(), name='celery-mail-subscribers'),
+    path('anime/<str:slug>/schedule',
+         ScheduleMail.as_view(), name='schedule-mail'),
 
     # genre related urls
 
