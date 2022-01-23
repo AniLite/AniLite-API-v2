@@ -19,7 +19,7 @@ urlpatterns = [
          AnimeUnsubscribeView.as_view(), name='anime-unsubscribe'),
     path('anime/subscribe',
          SubscribeView.as_view(), name='subscribe'),
-    path('anime/unsubscribe',
+    path('unsubscribe',
          UnsubscribeView.as_view(), name='unsubscribe'),
     path('anime/<str:slug>/mail',
          SendMailView.as_view(), name='mail-subscribers'),

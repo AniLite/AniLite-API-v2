@@ -55,7 +55,7 @@ class SubscribeView(APIView):
 
 class UnsubscribeView(APIView):
 
-    def get(self, request, slug):
+    def get(self, request):
         signer = Signer(salt=str(settings.SECRET_KEY))
         signed = request.GET.get('id', None)
         unsigned = signer.unsign_object(signed)
@@ -84,7 +84,7 @@ class SendMailView(APIView):
                     message = (
                         f'New episode alert for {anime.name_en or anime.name_jp}',
                         f'Hey {subscriber.username or subscriber.email}, a new episode has just dropped for {anime.name_en or anime.name_jp}, go check it out!\n\nTo unsubscribe, click on this link: http://127.0.0.1:8000/api/unsubscribe?id={signed}',
-                        settings.EMAIL_HOST_MAIL,
+                        settings.EMAIL_HOST_USER,
                         [subscriber.email, ],
                     )
                     messages.append(message)
