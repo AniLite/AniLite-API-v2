@@ -141,3 +141,11 @@ EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = config('HOST_MAIL')
 EMAIL_HOST_PASSWORD = config('HOST_PASS')
+
+# f'redis://username:password@127.0.0.1:6379'
+CELERY_BROKER_URL = config('REDIS_HOST') + ':12692'
+# CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Asia/Kolkata'

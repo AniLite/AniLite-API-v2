@@ -1,0 +1,21 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Episode!</title>
+</head>
+
+<body>
+    <h2>Hi {% if user.username %} {{user.username}}{% endif %}!</h2>
+    <p>A new episode has dropped for the anime {{anime.name_en}}, go check it out!</p>
+    {% if image_link != None %}
+    <img src={{image_link}} alt="anime-image" width="500" height="600">
+    {% endif %}
+    <hr>
+    <p>Don't want to receive emails from us anymore?</p>
+    <a href="{{unsub_link}}">Unsubscribe</a>
+</body>
+
+</html>
