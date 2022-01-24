@@ -49,6 +49,19 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+CACHES = {
+    'default': {
+        'BACKEND': 'redis_cache.RedisCache',
+        'LOCATION': config('REDIS_HOST') + ':12962',
+        'TIMEOUT': 60,
+        'OPTIONS':
+            {
+                "PASSWORD": config('REDIS_PASS'),
+                'DB': 0,
+        }
+    },
+}
+
 SESSION_ENGINE = 'redis_sessions.session'
 
 SESSION_REDIS = {

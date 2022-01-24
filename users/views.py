@@ -6,6 +6,19 @@ from django.contrib.auth import authenticate
 from django.conf import settings
 from .serializers import CustomUserSerializer
 from .permissions import IsLoggedIn
+from .models import CustomUser
+from django.views.decorators.cache import cache_page
+from rest_framework.decorators import permission_classes, api_view
+
+
+@cache_page(30)
+@permission_classes([IsLoggedIn])
+@api_view(['GET'])
+def cache_view(request):
+    user_id = request.COOKIES.get('anilite_cookie')
+    user = CustomUser.objects.get(id=user_id)
+    username = user.username
+    return JsonResponse({"username": username})
 
 
 class RegisterView(APIView):
