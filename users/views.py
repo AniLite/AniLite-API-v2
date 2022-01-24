@@ -1,4 +1,6 @@
+from rest_framework import status
 from django.http import JsonResponse
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -35,7 +37,15 @@ class LoginView(APIView):
     def post(self, request):
         email = request.data.get('email', None)
         password = request.data.get('password', None)
+
+        if email is None or password is None:
+            message = {"Invalid": "Email and / or password not provided."}
+            return Response(message, status=status.HTTP_401_UNAUTHORIZED)
+
         user = authenticate(email=email, password=password)
+
+        print(user)
+
         response = Response()
 
         if user is not None:
@@ -53,6 +63,9 @@ class LoginView(APIView):
                 "Message": "Login successful!"
             }
             return response
+        else:
+            message = {"Invalid": "User with the given credentials not found."}
+            return Response(message, status=status.HTTP_404_NOT_FOUND)
 
 
 class UserView(APIView):
@@ -60,7 +73,10 @@ class UserView(APIView):
     permission_classes = [IsLoggedIn]
 
     def get(self, request):
-        return JsonResponse({"Message": "Looks like you're logged in"})
+        user_id = request.COOKIES.get('anilite_cookie')
+        user = CustomUser.objects.get(id=user_id)
+        serializer = CustomUserSerializer(user, many=False)
+        return Response(serializer.data)
 
 
 class LogoutView(APIView):
