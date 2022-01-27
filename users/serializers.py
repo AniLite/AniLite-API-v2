@@ -4,6 +4,10 @@ from .models import CustomUser
 
 class CustomUserSerializer(serializers.ModelSerializer):
 
+    '''
+    Serializer for the CustomUser model, getting the profile picture's link from Cloudinary
+    '''
+
     pfp = serializers.SerializerMethodField()
 
     class Meta:

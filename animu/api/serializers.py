@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from animu.models import Anime, Genre, Character
 
-site_url = 'https://anilite-api.herokuapp.com/api'
+# site_url = 'https://anilite-api.herokuapp.com/api'
 
 
 class AnimeListSerializer(serializers.ModelSerializer):
@@ -18,7 +18,7 @@ class AnimeListSerializer(serializers.ModelSerializer):
             {
                 'id': genre.id,
                 'name': genre.name,
-                'link': f'{site_url}/genre/{genre.slug}',
+                # 'link': f'{site_url}/genre/{genre.slug}',
                 'slug': f'{genre.slug}'
             }
             for genre in obj.genres.all()
@@ -41,7 +41,7 @@ class AnimeDetailSerializer(serializers.ModelSerializer):
             {
                 'id': genre.id,
                 'name': genre.name,
-                'link': f'{site_url}/genre/{genre.slug}',
+                # 'link': f'{site_url}/genre/{genre.slug}',
                 'slug': f'{genre.slug}'
             }
             for genre in obj.genres.all()
@@ -54,7 +54,7 @@ class AnimeDetailSerializer(serializers.ModelSerializer):
                 'id': character.id,
                 'name': character.name,
                 'image': character.image,
-                'link': f'{site_url}/character/{character.slug}',
+                # 'link': f'{site_url}/character/{character.slug}',
                 'slug': f'{character.slug}'
             }
             for character in obj.characters.all()
@@ -89,7 +89,7 @@ class CharacterDetailSerializer(serializers.ModelSerializer):
         data = [
             {
                 'name': anime.name_en,
-                'link': f'{site_url}/anime/{anime.slug}',
+                # 'link': f'{site_url}/anime/{anime.slug}',
                 'slug': f'{anime.slug}'
             }
             for anime in obj.anime.all()

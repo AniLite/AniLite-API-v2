@@ -9,6 +9,7 @@ from .models import CustomUser
 
 
 class UserCreationForm(forms.ModelForm):
+
     password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
     password2 = forms.CharField(
         label='Password confirmation', widget=forms.PasswordInput)
@@ -33,36 +34,53 @@ class UserCreationForm(forms.ModelForm):
 
 
 class UserChangeForm(forms.ModelForm):
-    """A form for updating users. Includes all the fields on
+
+    '''
+    A form for updating users. Includes all the fields on
     the user, but replaces the password field with admin's
     disabled password hash display field.
-    """
+    '''
+
     password = ReadOnlyPasswordHashField()
 
     class Meta:
         model = CustomUser
-        fields = ('email', 'password',
-                  'is_active', 'is_superuser', 'get_mails', 'profile_picture')
+        fields = ('email', 'password', 'is_active',
+                  'is_superuser', 'get_mails', 'profile_picture')
 
 
 class UserAdmin(BaseUserAdmin):
+
+    '''
+    For customising how the CustomUser model is displayed in the admin panel
+    '''
+
     form = UserChangeForm
     add_form = UserCreationForm
 
+    # fields to be displayed under users
     list_display = ('email', 'is_superuser')
+
+    # fields to filter the users against
     list_filter = ('is_superuser',)
+
+    # fields to display when a user is selected
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         ('Personal info', {'fields': ('username',
          'profile_picture', 'subscriptions', 'get_mails')}),
         ('Permissions', {'fields': ('is_superuser',)}),
     )
+
+    # fields to display when adding a new user
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
             'fields': ('email', 'password1', 'password2'),
         }),
     )
+
+    # searching and ordering
     search_fields = ('email',)
     ordering = ('email',)
     filter_horizontal = ()

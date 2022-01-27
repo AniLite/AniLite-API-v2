@@ -13,6 +13,8 @@ from django.views.decorators.cache import cache_page
 from rest_framework.decorators import permission_classes, api_view
 
 
+# view to check if caching is working, the page shows the same username for 30 seconds even if it is changed
+# after accessing the page for the first time
 @cache_page(30)
 @permission_classes([IsLoggedIn])
 @api_view(['GET'])
@@ -25,6 +27,10 @@ def cache_view(request):
 
 class RegisterView(APIView):
 
+    '''
+    View for registering new users
+    '''
+
     def post(self, request):
         serializer = CustomUserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -33,6 +39,10 @@ class RegisterView(APIView):
 
 
 class LoginView(APIView):
+
+    '''
+    View for logging in existing users
+    '''
 
     def post(self, request):
         email = request.data.get('email', None)
@@ -43,8 +53,6 @@ class LoginView(APIView):
             return Response(message, status=status.HTTP_401_UNAUTHORIZED)
 
         user = authenticate(email=email, password=password)
-
-        print(user)
 
         response = Response()
 
@@ -59,16 +67,19 @@ class LoginView(APIView):
                 samesite=settings.SIMPLE_JWT['COOKIE_SAMESITE']
             )
             request.session['access_token'] = str(refresh_token.access_token)
-            response.data = {
-                "Message": "Login successful!"
-            }
+            response.data = {"Message": "Login successful!"}
             return response
+
         else:
             message = {"Invalid": "User with the given credentials not found."}
             return Response(message, status=status.HTTP_404_NOT_FOUND)
 
 
 class UserView(APIView):
+
+    '''
+    View for retreiving information about the logged in user
+    '''
 
     permission_classes = [IsLoggedIn]
 
@@ -80,6 +91,10 @@ class UserView(APIView):
 
 
 class LogoutView(APIView):
+
+    '''
+    For logging out the logged in user
+    '''
 
     def post(self, request):
         response = Response()

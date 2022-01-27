@@ -5,6 +5,10 @@ from .models import CustomUser
 
 class IsLoggedIn(permissions.BasePermission):
 
+    '''
+    Custom permission class to check if a user is logged in
+    '''
+
     def has_permission(self, request, view):
         user_id = request.COOKIES.get('anilite_cookie', None)
         token = request.session.get('access_token')
@@ -15,6 +19,10 @@ class IsLoggedIn(permissions.BasePermission):
 
 
 class IsAdmin(permissions.BasePermission):
+
+    '''
+    Custom permission class to check if a user is a superuser or not
+    '''
 
     def has_permission(self, request, view):
         user_id = request.COOKIES.get('anilite_cookie', None)

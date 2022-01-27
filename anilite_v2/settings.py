@@ -13,12 +13,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-cloudinary.config(
-    cloud_name=config("CLOUD_NAME"),
-    api_key=config("API_KEY"),
-    api_secret=config("API_SECRET")
-)
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -48,31 +42,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
-CACHES = {
-    'default': {
-        'BACKEND': 'redis_cache.RedisCache',
-        'LOCATION': config('REDIS_HOST') + ':12962',
-        'TIMEOUT': 60,
-        'OPTIONS':
-            {
-                "PASSWORD": config('REDIS_PASS'),
-                'DB': 0,
-        }
-    },
-}
-
-SESSION_ENGINE = 'redis_sessions.session'
-
-SESSION_REDIS = {
-    'host': config('REDIS_HOST'),
-    'port': 12962,
-    'db': 0,
-    'password': config('REDIS_PASS'),
-    'prefix': 'session',
-    'socket_timeout': 1,
-    'retry_on_timeout': False
-}
 
 ROOT_URLCONF = 'anilite_v2.urls'
 
@@ -132,7 +101,48 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# cloudinary settings:
+
+cloudinary.config(
+    cloud_name=config("CLOUD_NAME"),
+    api_key=config("API_KEY"),
+    api_secret=config("API_SECRET")
+)
+
+# cache settings:
+
+CACHES = {
+    'default': {
+        'BACKEND': 'redis_cache.RedisCache',
+        'LOCATION': config('REDIS_HOST') + ':12962',
+        'TIMEOUT': 60,
+        'OPTIONS':
+            {
+                "PASSWORD": config('REDIS_PASS'),
+                'DB': 0,
+        }
+    },
+}
+
+# session settings:
+
+SESSION_ENGINE = 'redis_sessions.session'
+
+SESSION_REDIS = {
+    'host': config('REDIS_HOST'),
+    'port': 12962,
+    'db': 0,
+    'password': config('REDIS_PASS'),
+    'prefix': 'session',
+    'socket_timeout': 1,
+    'retry_on_timeout': False
+}
+
+# changing the default authentication model:
+
 AUTH_USER_MODEL = 'users.CustomUser'
+
+# JWT token and cookie settings:
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
@@ -140,7 +150,9 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': False,
     'UPDATE_LAST_LOGIN': False,
+
     # cookie settings
+
     'COOKIE_KEY': 'anilite_cookie',
     'COOKIE_EXPIRES': 3600,
     'COOKIE_SECURE': False,
@@ -149,6 +161,8 @@ SIMPLE_JWT = {
     'COOKIE_SAMESITE': 'Lax'
 }
 
+# email settings:
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
@@ -156,13 +170,11 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = config('HOST_MAIL')
 EMAIL_HOST_PASSWORD = config('HOST_PASS')
 
+# celery and celery-beat settings:
 
-# CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
 CELERY_BROKER_URL = config('REDIS_USER_HOST_PASS')
-# CELERY_RESULT_BACKEND = 'redis://localhost:6379'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Kolkata'
-
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'

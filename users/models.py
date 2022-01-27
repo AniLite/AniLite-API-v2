@@ -37,6 +37,11 @@ class CustomUserManager(BaseUserManager):
 
 class CustomUser(AbstractUser):
 
+    '''
+    Model to use email based authentication instead of username,
+    and using some more fields not provided with the default django user model
+    '''
+
     email = models.EmailField(max_length=255, unique=True)
     is_active = models.BooleanField(default=True)
     username = models.CharField(
