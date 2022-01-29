@@ -37,10 +37,13 @@ class UnsubscribeView(APIView):
     For unsubscribing to the mailing list
     '''
 
-    def post(self, request):
-        user_id = request.COOKIES.get('anilite_cookie')
-        user = CustomUser.objects.get(id=user_id)
-        if user is not None:
+    def get(self, request):
+        signer = Signer(salt=str(settings.SECRET_KEY))
+        signed = request.GET.get('id', None)
+        unsigned = signer.unsign_object(signed)
+        email = unsigned['email']
+        if signed is not None:
+            user = CustomUser.objects.get(email=email)
             user.get_mails = False
             user.save()
             return JsonResponse({"Message": f"{user.username or user.email} unsubscribed to all mails successfully!"})
