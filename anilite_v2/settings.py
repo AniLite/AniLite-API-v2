@@ -13,9 +13,12 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = True
 
 CORS_ALLOW_ALL_ORIGINS = True
-ALLOWED_HOSTS = ['localhost']
+ALLOWED_HOSTS = ['127.0.0.1', 'crux-round-3.herokuapp.com',
+                 'localhost', 'anilite-api.herokuapp.com']
 CORS_ALLOWED_ORIGINS = (
-    'http://localhost'
+    'http://localhost',
+    'http://127.0.0.1',
+    'https://crux-round-3.herokuapp.com'
 )
 CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken', 'Set-Cookie']
 CORS_ALLOW_CREDENTIALS = True
@@ -116,6 +119,10 @@ USE_L10N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [BASE_DIR / 'static']
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
