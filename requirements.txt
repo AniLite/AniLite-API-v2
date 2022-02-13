@@ -43,6 +43,7 @@ pytz==2021.3
 PyYAML==5.4.1
 redis==3.5.3
 requests==2.26.0
+sendmail==2.0
 simplejson==3.17.4
 six==1.16.0
 sqlparse==0.4.1
