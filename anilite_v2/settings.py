@@ -4,6 +4,7 @@ import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 from decouple import config
+import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -11,7 +12,24 @@ SECRET_KEY = config('SECRET_KEY')
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+CORS_ALLOW_ALL_ORIGINS = True
+ALLOWED_HOSTS = ['localhost']
+CORS_ALLOWED_ORIGINS = (
+    'http://localhost'
+)
+CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken', 'Set-Cookie']
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -155,10 +173,10 @@ SIMPLE_JWT = {
 
     'COOKIE_KEY': 'anilite_cookie',
     'COOKIE_EXPIRES': 3600,
-    'COOKIE_SECURE': False,
+    'COOKIE_SECURE': True,
     'COOKIE_HTTP_ONLY': True,
     'COOKIE_PATH': '/',
-    'COOKIE_SAMESITE': 'Lax'
+    'COOKIE_SAMESITE': 'None'
 }
 
 # email settings:
@@ -178,3 +196,7 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Kolkata'
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+# For setting debug mode off if in deployment mode
+if os.getcwd() == '/app':
+    DEBUG = False
