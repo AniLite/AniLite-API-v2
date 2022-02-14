@@ -98,7 +98,7 @@ class LogoutView(APIView):
 
     def post(self, request):
         response = Response()
-        response.delete_cookie('anilite_cookie')
+        response.delete_cookie('anilite_cookie', samesite=None)
         if request.session.get('access_token') is not None:
             del request.session['access_token']
         response.data = {"Message": "Logged out successfully"}
