@@ -87,7 +87,17 @@ class UserView(APIView):
         user_id = request.COOKIES.get('anilite_cookie')
         user = CustomUser.objects.get(id=user_id)
         serializer = CustomUserSerializer(user, many=False)
-        return Response(serializer.data)
+        response = Response()
+        response.set_cookie(
+            key=settings.SIMPLE_JWT['COOKIE_KEY'],
+            value=str(user.id),
+            expires=settings.SIMPLE_JWT['COOKIE_EXPIRES'],
+            secure=settings.SIMPLE_JWT['COOKIE_SECURE'],
+            httponly=settings.SIMPLE_JWT['COOKIE_HTTP_ONLY'],
+            samesite=settings.SIMPLE_JWT['COOKIE_SAMESITE']
+        )
+        response.data = serializer.data
+        return response
 
 
 class LogoutView(APIView):
@@ -98,7 +108,7 @@ class LogoutView(APIView):
 
     def post(self, request):
         response = Response()
-        # response.delete_cookie('anilite_cookie', samesite=None)
+        # response.delete_cookie('anilite_cookie', samesite=None) -> this doesn't work in production because it fails to set the samesite attribute for some reason
         response.set_cookie(
             key=settings.SIMPLE_JWT['COOKIE_KEY'],
             value="",
@@ -109,6 +119,5 @@ class LogoutView(APIView):
         )
         if request.session.get('access_token') is not None:
             del request.session['access_token']
-        print(response.cookies)
         response.data = {"Message": "Logged out successfully"}
         return response
